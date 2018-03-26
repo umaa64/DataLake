@@ -1,0 +1,5 @@
+setup.py
+datalake_quickstart.egg-info/PKG-INFO
+datalake_quickstart.egg-info/SOURCES.txt
+datalake_quickstart.egg-info/dependency_links.txt
+datalake_quickstart.egg-info/top_level.txt
