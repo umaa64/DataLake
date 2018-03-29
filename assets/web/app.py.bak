@@ -84,7 +84,7 @@ def quickstart_exception_errorhandler(error):
     return response
 
 
-#@app.route('/login', methods=['POST'])
+@app.route('/login', methods=['POST'])
 def login():
     if request.form['username'] == app.config['webapp_username'] and \
                     request.form['password'] == app.config['webapp_password']:
@@ -115,10 +115,10 @@ def home():
     return redirect(url_for('wizard'))
 
 
-#@app.route('/wizard')
+@app.route('/wizard')
 def wizard():
-    #if session.get('logged_in') is None:
-    #    return render_template('login.html')
+    if session.get('logged_in') is None:
+        return render_template('login.html')
     return render_template(
         'wizard.html',
         kibana_url=app.config['kibana_url'],
@@ -132,73 +132,72 @@ def wizard():
     )
 
 
-#@app.route('/create_curated_datasets', methods=['POST'])
+@app.route('/create_curated_datasets', methods=['POST'])
 @handle_quickstart_exception("Error occured while creating curated datasets")
-#@login_required
-#@mark_step_as_done(step=2)
+@login_required
+@mark_step_as_done(step=2)
 def create_curated_datasets():
-    print "create curated datasets executing....!"
     create_and_load_curated_datasets(app.config)
 
 
-#@app.route('/configure_kinesis', methods=['POST'])
+@app.route('/configure_kinesis', methods=['POST'])
 @handle_quickstart_exception("Error occured while creating Kinesis applications")
-#@login_required
-#@mark_step_as_done(step=3)
+@login_required
+@mark_step_as_done(step=3)
 def create_kinesis_applications_and_start_stream():
     create_kinesis_apps(app.config)
     process = multiprocessing.Process(target=generate_data_to_kinesis, args=(app.config,))
     process.start()
 
 
-#@app.route('/run_glue_crawler', methods=['POST'])
+@app.route('/run_glue_crawler', methods=['POST'])
 @handle_quickstart_exception("Error occured while using AWS Glue service")
-#@login_required
-#@mark_step_as_done(step=4)
+@login_required
+@mark_step_as_done(step=4)
 def run_glue_crawler():
     run_aws_glue_crawler(app.config)
 
 
-#@app.route('/elastic_search', methods=['POST'])
-#@login_required
-#@mark_step_as_done(step=5)
+@app.route('/elastic_search', methods=['POST'])
+@login_required
+@mark_step_as_done(step=5)
 def elastic_search():
     pass
 
 
-#@app.route('/run_spectrum_analytics', methods=['POST'])
+@app.route('/run_spectrum_analytics', methods=['POST'])
 @handle_quickstart_exception("Error running analytics with Spectrum")
-#@login_required
-#@mark_step_as_done(step=6)
+@login_required
+@mark_step_as_done(step=6)
 def run_spectrum_analytics():
     run_redshift_analysis(app.config)
 
 
-#@app.route('/amazon_athena', methods=['POST'])
+@app.route('/amazon_athena', methods=['POST'])
 @handle_quickstart_exception("Error occured while configuring Athena")
-#@login_required
-#@mark_step_as_done(step=7)
+@login_required
+@mark_step_as_done(step=7)
 def amazon_athena():
     pass
 
 
-#@app.route('/publish_datasets', methods=['POST'])
+@app.route('/publish_datasets', methods=['POST'])
 @handle_quickstart_exception("Error occured while publishing data")
-#@login_required
-#@mark_step_as_done(step=8)
+@login_required
+@mark_step_as_done(step=8)
 def publish_datasets():
     publish_analysis_results(app.config)
 
 
-#@app.route('/learn_more', methods=['POST'])
+@app.route('/learn_more', methods=['POST'])
 @handle_quickstart_exception("Error occured while sending form")
-#@login_required
-#@mark_step_as_done(step=9)
+@login_required
+@mark_step_as_done(step=9)
 def learn_more_form():
     learn_more(app.config, request.form)
 
 
-#@app.route('/faq', methods=['GET'])
+@app.route('/faq', methods=['GET'])
 def faq():
     return render_template('faq.html',
                            curated_datasets_database_name=app.config['curated_datasets_database_name'])
@@ -227,5 +226,3 @@ if __name__ == "__main__":
     app.secret_key = os.urandom(47)
     app.config.update(config)
     app.run(host='0.0.0.0', port=int(config['port']), threaded=True)
-    print "hello world"
-    app.create_curated_datasets()
