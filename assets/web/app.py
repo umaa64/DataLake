@@ -137,7 +137,6 @@ def wizard():
 #@login_required
 #@mark_step_as_done(step=2)
 def create_curated_datasets():
-    print "create curated datasets executing....!"
     create_and_load_curated_datasets(app.config)
 
 
@@ -227,5 +226,3 @@ if __name__ == "__main__":
     app.secret_key = os.urandom(47)
     app.config.update(config)
     app.run(host='0.0.0.0', port=int(config['port']), threaded=True)
-    print "hello world"
-    app.create_curated_datasets()
