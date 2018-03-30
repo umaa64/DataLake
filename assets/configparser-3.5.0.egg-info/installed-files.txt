@@ -1,0 +1,13 @@
+../configparser.py
+../backports/configparser/helpers.py
+../backports/configparser/__init__.py
+../configparser.pyc
+../backports/configparser/helpers.pyc
+../backports/configparser/__init__.pyc
+top_level.txt
+not-zip-safe
+namespace_packages.txt
+PKG-INFO
+dependency_links.txt
+SOURCES.txt
+../configparser-3.5.0-nspkg.pth
