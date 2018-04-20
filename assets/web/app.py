@@ -27,7 +27,8 @@ from analysis.glue import run_aws_glue_crawler
 from analysis.transformations import (
     run_redshift_analysis,
     publish_analysis_results,
-    create_and_load_curated_datasets
+    create_and_load_curated_datasets,
+    load_data_to_Redshift
 )
 from analysis.learn_more import learn_more
 from analysis.exceptions import QuickstartException, handle_quickstart_exception
@@ -206,6 +207,7 @@ def faq():
 def parse_command_line_args():
     parser = argparse.ArgumentParser(description='Quick start App')
     parser.add_argument('--config', required=True, help='Configuration')
+    parser.add_argument('--condition', required=True, help='Condition')
     return parser.parse_args()
 
 
@@ -218,11 +220,54 @@ def read_config(config_path):
             config[config_key] = config_value
     return config
 
+def one_time_calling(config):
+    print("creating the curated datasets orders and customers from submissions ")
+    create_and_load_curated_datasets(config) #Transforming data to submissions
+    print("creating the load jobs in redshift and copy data of customers and orders to redshift")
+    load_data_to_Redshift(config) # loading data to redshift
+    print("creating two kinessis apps")
+    create_kinesis_apps(app.config)
+    print("Completed the kinesis apps creation")
+    print("--------------------------------------------------------------------")
+
+def recursiveCalling(config):
+    print("starting the orders stream for kinesis apps")
+    process = multiprocessing.Process(target=generate_data_to_kinesis, args=(app.config,))
+    process.start()
+    # print("completed the orders streaming data to kinesis")
+    print("--------------------------------------------------------------------")
+    # print("creating the curated datasets orders and customers from submissions ")
+    # create_and_load_curated_datasets(config) #Transforming data to submissions
+    print("creating the load jobs in redshift and copy data of customers and orders to redshift")
+    # load_data_to_Redshift(config) # loading data to redshift
+    print("--------------------------------------------------------------------")
+    print("Runing the glue crawler")
+    run_aws_glue_crawler(config)
+    print("completed running the glue crawler")
+    print("--------------------------------------------------------------------")
+    print("running the spectram")
+    run_redshift_analysis(config)
+    print("ending the running spectram")
+    print("--------------------------------------------------------------------")
+    print("publishing the results")
+    publish_analysis_results(config)
+    print("completed the publishing the results")
+
+
 
 if __name__ == "__main__":
     logging.basicConfig(stream=sys.stderr, level=logging.INFO)
     args = parse_command_line_args()
     config = read_config(args.config)
+    condition = args.condition
     app.secret_key = os.urandom(47)
     app.config.update(config)
-    app.run(host='0.0.0.0', port=int(config['port']), threaded=True)
+    if condition == "1":
+        one_time_calling(app.config)
+    elif condition == "2":
+        recursiveCalling(app.config)
+
+    # create_and_load_curated_datasets(app.config) #Transforming data to submissions
+    # load_data_to_Redshift(app.config) # loading data to redshift
+    # recursiveCalling(config)
+    # app.run(host='0.0.0.0', port=int(config['port']), threaded=True)
