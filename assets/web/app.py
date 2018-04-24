@@ -127,8 +127,8 @@ def wizard():
         published_bucket_name=app.config['published_bucket_name'],
         curated_bucket_name=app.config['curated_bucket_name'],
         submissions_bucket_name=app.config['submissions_bucket_name'],
-        curated_datasets_database_name=app.config['curated_datasets_database_name                                                                                       '],
-        curated_datasets_crawler_name=app.config['curated_datasets_crawler_name']                                                                                       ,
+        curated_datasets_database_name=app.config['curated_datasets_database_name'],
+        curated_datasets_crawler_name=app.config['curated_datasets_crawler_name'],
         curated_datasets_job_name=app.config['curated_datasets_job_name']
     )
 
@@ -147,7 +147,7 @@ def create_curated_datasets():
 @mark_step_as_done(step=3)
 def create_kinesis_applications_and_start_stream():
     create_kinesis_apps(app.config)
-    process = multiprocessing.Process(target=generate_data_to_kinesis, args=(app.                                                                                       config,))
+    process = multiprocessing.Process(target=generate_data_to_kinesis, args=(app.config,))
     process.start()
 
 
@@ -201,7 +201,7 @@ def learn_more_form():
 @app.route('/faq', methods=['GET'])
 def faq():
     return render_template('faq.html',
-                           curated_datasets_database_name=app.config['curated_dat                                                                                       asets_database_name'])
+                           curated_datasets_database_name=app.config['curated_datasets_database_name'])
 
 
 def parse_command_line_args():
@@ -223,7 +223,7 @@ def read_config(config_path):
 def one_time_calling(config):
     print("creating the curated datasets orders and customers from submissions ")
     create_and_load_curated_datasets(config) #Transforming data to submissions
-    print("creating the load jobs in redshift and copy data of customers and orde                                                                                       rs to redshift")
+    print("creating the load jobs in redshift and copy data of customers and orders to redshift")
     load_data_to_Redshift(config) # loading data to redshift
     print("creating two kinessis apps")
     create_kinesis_apps(app.config)
@@ -232,13 +232,13 @@ def one_time_calling(config):
 
 def recursiveCalling(config):
     print("starting the orders stream for kinesis apps")
-    process = multiprocessing.Process(target=generate_data_to_kinesis, args=(app.                                                                                       config,))
+    process = multiprocessing.Process(target=generate_data_to_kinesis, args=(app.config,))
     process.start()
     # print("completed the orders streaming data to kinesis")
     print("--------------------------------------------------------------------")
-    # print("creating the curated datasets orders and customers from submissions                                                                                        ")
+    # print("creating the curated datasets orders and customers from submissions ")
     # create_and_load_curated_datasets(config) #Transforming data to submissions
-    print("creating the load jobs in redshift and copy data of customers and orde                                                                                       rs to redshift")
+    print("creating the load jobs in redshift and copy data of customers and orders to redshift")
     # load_data_to_Redshift(config) # loading data to redshift
     print("--------------------------------------------------------------------")
     print("Runing the glue crawler")
@@ -264,12 +264,12 @@ if __name__ == "__main__":
     app.config.update(config)
     if condition == "1":
         # one_time_calling(app.config)
-        create_and_load_curated_datasets(app.config) #Transforming data to submis                                                                                       sions
+        create_and_load_curated_datasets(app.config) #Transforming data to submissions
     elif condition == "2":
         # recursiveCalling(app.config)
          create_kinesis_apps(app.config)
     elif condition == "3":
-        process = multiprocessing.Process(target=generate_data_to_kinesis, args=(                                                                                       app.config,))
+        process = multiprocessing.Process(target=generate_data_to_kinesis, args=(app.config,))
         process.start()
     elif condition == "4":
         run_aws_glue_crawler(app.config)
@@ -277,7 +277,7 @@ if __name__ == "__main__":
         run_redshift_analysis(app.config)
     elif condition == "6":
         publish_analysis_results(app.config)
-    # create_and_load_curated_datasets(app.config) #Transforming data to submissi                                                                                       ons
+    # create_and_load_curated_datasets(app.config) #Transforming data to submissions
     # load_data_to_Redshift(app.config) # loading data to redshift
     # recursiveCalling(config)
     # app.run(host='0.0.0.0', port=int(config['port']), threaded=True)
